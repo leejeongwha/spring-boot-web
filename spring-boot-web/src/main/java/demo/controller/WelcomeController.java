@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +27,8 @@ public class WelcomeController {
 
 	@Autowired
 	private TestBO testBO;
+	@Autowired
+	private StringRedisTemplate template;
 
 	@RequestMapping("/")
 	public String welcome(Map<String, Object> model) {
@@ -39,5 +43,24 @@ public class WelcomeController {
 		List<CommCd> commCdList = testBO.getCommCdList();
 
 		return commCdList;
+	}
+
+	/**
+	 * 예전버전 : https://github.com/dmajkic/redis/downloads, 현재는 더이상 windows 32bit
+	 * 지원 안함 : https://github.com/MSOpenTech/redis
+	 * 
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/redis")
+	@ResponseBody
+	public String redis(Model model) {
+		ValueOperations<String, String> ops = this.template.opsForValue();
+		String key = "spring.boot.redis.test";
+		if (!this.template.hasKey(key)) {
+			logger.info("There is no key : " + key);
+			ops.set(key, "foo");
+		}
+		return "Found key " + key + ", value=" + ops.get(key);
 	}
 }
