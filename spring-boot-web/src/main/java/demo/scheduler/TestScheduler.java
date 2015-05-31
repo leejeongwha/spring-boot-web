@@ -11,6 +11,6 @@ public class TestScheduler {
 
 	@Scheduled(fixedDelay = 5000)
 	public void testScheduler() {
-		logger.info("test scheduler");
+		// logger.info("test scheduler");
 	}
 }
