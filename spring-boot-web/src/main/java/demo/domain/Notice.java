@@ -3,7 +3,7 @@ package demo.domain;
 import java.io.Serializable;
 
 public class Notice implements Serializable {
-	public static final String OBJECT_KEY = "USER";
+	public static final String OBJECT_KEY = "notice";
 	private int id;
 	private String title;
 	private String content;

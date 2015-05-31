@@ -1,10 +1,15 @@
 package demo.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +21,11 @@ import demo.domain.Notice;
 public class RedisController {
 	final static Logger logger = LoggerFactory.getLogger(RedisController.class);
 
-	@SuppressWarnings("rawtypes")
-	@Autowired
+	@Resource(name = "redisTemplate")
 	private RedisTemplate redisTemplate;
+
+	@Autowired
+	private StringRedisTemplate stringRedisTempalte;
 
 	/**
 	 * redis 는 byte array 형태로 데이터를 저장함, 예전버전 :
@@ -29,32 +36,50 @@ public class RedisController {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping("/redisObject")
+	@RequestMapping("/redis-object")
 	@ResponseBody
 	public Notice redisObj(Model model) {
-		redisTemplate.setKeySerializer(new JdkSerializationRedisSerializer());
-		redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
-
 		Notice notice = new Notice();
 		notice.setId(0);
 		notice.setTitle("test title");
 		notice.setContent("반갑습니다.");
 
-		redisTemplate.opsForValue().set(notice.OBJECT_KEY, notice);
+		redisTemplate.opsForValue().set(Notice.OBJECT_KEY, notice);
 
-		return (Notice) redisTemplate.opsForValue().get(notice.OBJECT_KEY);
+		return (Notice) redisTemplate.opsForValue().get(Notice.OBJECT_KEY);
 	}
 
-	@SuppressWarnings("unchecked")
-	@RequestMapping("/redisString")
+	@RequestMapping("/redis-string")
 	@ResponseBody
 	public String redisString(Model model) {
 		String key = "test";
-		if (!redisTemplate.hasKey(key)) {
-			logger.info("redis already has " + key);
-			redisTemplate.opsForValue().set(key, "leejeonwha");
+		if (!stringRedisTempalte.hasKey(key)) {
+			logger.info("redis has not key : " + key);
+			stringRedisTempalte.opsForValue().set(key, "leejeongwha");
+		} else {
+			logger.info("redis already has key : " + key);
 		}
 
-		return (String) redisTemplate.opsForValue().get(key);
+		return stringRedisTempalte.opsForValue().get(key);
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping("/redis-list")
+	@ResponseBody
+	public Notice redisList(Model model) {
+		String key = "notice_list";
+
+		Notice notice = new Notice();
+		notice.setId(0);
+		notice.setTitle("test title");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		notice.setContent(sdf.format(new Date()));
+
+		redisTemplate.boundListOps(key).leftPush(notice);
+
+		logger.info("redis list size is : " + redisTemplate.boundListOps(key).size());
+
+		return (Notice) redisTemplate.boundListOps(key).index(0);
+
 	}
 }
