@@ -1,3 +1,6 @@
+application.properties 파일 key값 리스트
+- http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+
 1. 배포 참고 스크립트
 http://stackoverflow.com/questions/11203483/run-a-java-application-as-a-service-on-linux
 
