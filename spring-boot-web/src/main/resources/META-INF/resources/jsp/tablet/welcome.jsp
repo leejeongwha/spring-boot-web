@@ -6,7 +6,7 @@
 <html lang="ko">
 
 <body>
-	TABLET
+	${device}
 </body>
 
 </html>

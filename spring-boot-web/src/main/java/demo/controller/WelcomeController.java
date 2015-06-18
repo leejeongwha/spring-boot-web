@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,11 +26,18 @@ public class WelcomeController {
 
 	@Autowired
 	private TestBO testBO;
-
+	
+	/**
+	 * Spring Boot auto-configures DeviceResolverHandlerInterceptor, DeviceWebArgumentResolver
+	 * @param model
+	 * @param device
+	 * @return
+	 */
 	@RequestMapping("/")
-	public String welcome(Map<String, Object> model) {
+	public String welcome(Map<String, Object> model, Device device) {
 		model.put("time", new Date());
 		model.put("message", this.message);
+		model.put("device", device.toString());
 		return "welcome";
 	}
 
